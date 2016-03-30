@@ -1,5 +1,7 @@
 # python compiled files
 *.pyc
+# DOxygen documentation
+python/doc
 
 # Compiled Object files
 *.slo

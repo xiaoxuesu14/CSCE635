@@ -20,9 +20,10 @@ def circleFit(x,x1,x2,x3):
     return f
 
 ## @file circleFit.py
-## @ package circleFit Curve fit to GPS data assuming constant-radius turns between successive GPS points. Seems to work reasonably well.
+## @package circleFit Curve fit to GPS data assuming constant-radius turns between successive GPS points. Seems to work reasonably well.
 # @brief Approximates a curve fit for the minimum turn radius as a function of time. More conservative results at low speeds using 20160328172331 data set.
-# Dependencies: gpsParser functions, numpy, scipy, matplotlib, python2
+#
+# Dependencies: gpsParser package, numpy, scipy, matplotlib, python2
 
 #file = '20160328172944.csv'
 file = '20160328172331.csv'

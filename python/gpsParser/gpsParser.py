@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import math
 import sys
 
+## @package gpsParser Functions for reading GPS CSV logs from GPSLogger Android App
+# Dependencies: numpy, matplotlib, python2
+
 Re = 6378100 # earth radius in meters
 d2r = math.pi/180.0 # convert degrees to radians
 
@@ -79,7 +82,10 @@ def parseFile(filename):
     dat = dat[0:datLen,:]
     return dat
 
-# args: '-f filename','-plot' (plot), '-animate' (animate), '-map' (plot 2D)
+## command-line execution to generate plots from a data set
+# @brief usage: '-f filename' followed by optional arguments '-plot' and '-map'
+#
+#  '-plot' generates a time history plot, -map generates a 2D X-Y flat-earth plot. example use: 'python gpsParser -f 20160328172944.csv -plot -map'
 def main():
     # current index
     kst = 1

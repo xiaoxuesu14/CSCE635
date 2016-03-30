@@ -4,7 +4,11 @@ import gpsParser
 import scipy.interpolate
 import matplotlib.pyplot as plt
 
-## @file curveFit.py Does curve fitting to GPS data using splines to estimate radius of curvature. Works badly, data are too noisy to get accelerations.
+## @file
+## @package curveFit Does curve fitting to GPS data using splines to estimate radius of curvature.
+# @brief Works badly, data are too noisy to get accelerations.
+#
+# Dependencies gpsParser package, numpy, scipy, matplotlib, python2
 
 # load file: use one of the two cases we're set up for
 #file = '20160328172944.csv'
