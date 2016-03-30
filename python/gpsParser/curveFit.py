@@ -17,8 +17,10 @@ dat = gpsParser.parseFile(file)
 
 # shorten file to relevant interval (i.e. nonzero speed)
 if file == '20160328172944.csv':
-    k1 = np.nonzero((dat[:,0]-dat[0,0] > 322))
-    k2 = np.nonzero((dat[:,0]-dat[0,0] < 375))
+    #k1 = np.nonzero((dat[:,0]-dat[0,0] > 322))
+    #k2 = np.nonzero((dat[:,0]-dat[0,0] < 375))
+    k1 = np.nonzero((dat[:,0]-dat[0,0] > 220))
+    k2 = np.nonzero((dat[:,0]-dat[0,0] < 400))
     kp = np.intersect1d(k1[0],k2[0])
     dat = dat[kp,:]
 if file == '20160328172331.csv':
@@ -54,38 +56,42 @@ for k in range(len(ti)):
 
 # plot 2D path
 mp = plt.figure()
-axu = mp.add_subplot(1,1,1)
-axu.plot(x,y)
-axu.plot(xs,ys,'r--')
+axu = mp.add_subplot(1,1,1,ylabel='y(m)',xlabel='x(m)')
+axu.plot(x,y,lw=2)
+axu.plot(xs,ys,'r--',lw=2)
 mp.show()
 
 # plot time histories
 fig = plt.figure()
 axi = []
 lbls = ['x(m)','y(m)','vx(m/s)','vy(m/s)','ax(m/s2)','ay(m/s2)','curvature (m^-1)','radius of curvature (m)']
-for k in range(8):
-    axi.append(fig.add_subplot(4,2,k+1,ylabel=lbls[k]))
+for k in range(4):
+    axi.append(fig.add_subplot(2,2,k+1,ylabel=lbls[k],xlabel='time(sec)'))
     if k == 0:
-        axi[k].plot(t,x)
-        axi[k].plot(ti,xs,'r--')
+        axi[k].plot(t,x,lw=2)
+        axi[k].plot(ti,xs,'r--',lw=2)
     elif k == 1:
-        axi[k].plot(t,y)
-        axi[k].plot(ti,ys,'r--')
+        axi[k].plot(t,y,lw=2)
+        axi[k].plot(ti,ys,'r--',lw=2)
     elif k == 2:
-        axi[k].plot(ti,vx)
+        axi[k].plot(ti,vx,lw=2)
         #axi[k].plot(ti,vxs,'r--')
     elif k == 3:
-        axi[k].plot(ti,vy)
+        axi[k].plot(ti,vy,lw=2)
         #axi[k].plot(ti,vys,'r--')
     elif k == 4:
-        axi[k].plot(ti,ax)
+        axi[k].plot(ti,ax,lw=2)
     elif k == 5:
-        axi[k].plot(ti,ay)
+        axi[k].plot(ti,ay,lw=2)
     elif k == 6:
-        axi[k].plot(ti,np.abs(K))
+        axi[k].plot(ti,np.abs(K),lw=2)
     elif k == 7:
-        axi[k].plot(ti,np.abs(R))
+        axi[k].plot(ti,np.abs(R),lw=2)
+
+mp.set_size_inches((6.25,9),forward=True)
+fig.set_size_inches((6.25,9),forward=True)
 fig.show()
+#fig.set_size_inches(6.0,4.0,forward=True)
 raw_input('Return to continue')
 plt.close(fig);
 plt.close(mp);

@@ -25,8 +25,8 @@ def circleFit(x,x1,x2,x3):
 #
 # Dependencies: gpsParser package, numpy, scipy, matplotlib, python2
 
-#file = '20160328172944.csv'
-file = '20160328172331.csv'
+file = '20160328172944.csv'
+#file = '20160328172331.csv'
 dat = gpsParser.parseFile(file)
 
 # shorten to relevant interval
@@ -61,13 +61,21 @@ for k in range(1,len(t)-1):
 # interpolate for plotting
 desn = 50
 xyhr = np.zeros(((len(t)-1)*desn,2))
-for k in range(1,len(t)-1):
+for k in range(1,4):#len(t)-1):
     th2 = math.atan2(y[k+1]-xSol[k,1],x[k+1]-xSol[k,0])
     th1 = math.atan2(y[k-1]-xSol[k,1],x[k-1]-xSol[k,0])
     th = np.linspace(th1,th2,desn)
     #th = np.linspace(0,2.0*math.pi,desn)
     xyhr[ (k*desn):((k+1)*desn),0 ] = xSol[k,2]*np.cos(th) + xSol[k,0]
     xyhr[ (k*desn):((k+1)*desn),1 ] = xSol[k,2]*np.sin(th) + xSol[k,1]
+
+fig1 = plt.figure()
+ax1 = fig1.add_subplot(1,1,1,ylabel='y(m)',xlabel='x(m)')
+ax1.plot(x,y,'b-d',lw=2)
+ax1.plot(xyhr[:,0],xyhr[:,1],'r--',lw=2)
+ax1.grid()
+fig1.show()
+
 
 # simple curve fit for turning radius(vel):
 # bin velocities every m/s
@@ -90,7 +98,7 @@ for k in range(len(bins)):
     A[k,1] = 1.0
     Yf[k] = math.log10(minr[k])
 Xf = np.dot(np.dot(np.linalg.inv( np.dot(A.transpose(),A)),A.transpose()),Yf)
-print('Y = %g*log10(radius)+%g' % (Xf[0],Xf[1]))
+print('log10(radius) = %g*V+%g' % (Xf[0],Xf[1]))
 Yp = np.dot(A,Xf)
 Ype = np.power(10.0,Yp)
 print('Y_pred = %g,%g,%g,%g' % (Ype[0],Ype[1],Ype[2],Ype[3]))
@@ -99,20 +107,22 @@ xe = np.linspace(1.0,9.0,10)
 fig = plt.figure()
 ax = []
 ax.append( fig.add_subplot(3,1,1,ylabel='radius(m)') )
-ax[0].plot(t,np.abs(xSol[:,2]))
+ax[0].plot(t,np.abs(xSol[:,2]),lw=2)
 ax[0].grid()
-#ax.append( fig.add_subplot(3,1,2,ylabel='y(m)',xlabel='x(m)') )
-#ax[1].plot(x,y,'b-')
-#ax[1].plot(xyhr[:,0],xyhr[:,1],'r--')
+#
 ax.append( fig.add_subplot(3,1,2,ylabel='log10(radius)(m)',xlabel='V(m/s)') )
-ax[1].plot(vel,np.log10(np.abs(xSol[:,2])),'bx')
+ax[1].plot(vel,np.log10(np.abs(xSol[:,2])),'bx',lw=2)
 # plot curve fit
-ax[1].plot(xe,xe*Xf[0]+Xf[1],'r-')
+ax[1].plot(xe,xe*Xf[0]+Xf[1],'r-',lw=2)
 ax[1].grid()
 ax.append( fig.add_subplot(3,1,3,ylabel='V(m/s)') )
-ax[2].plot(t,vel)
+ax[2].plot(t,vel,lw=2)
 ax[2].grid()
+
+fig.set_size_inches((6.25,9),forward=True)
+fig1.set_size_inches((6.25,9),forward=True)
 fig.show()
 
 raw_input('Return to exit')
 plt.close(fig)
+plt.close(fig1)

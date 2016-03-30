@@ -2,6 +2,8 @@
 *.pyc
 # DOxygen documentation
 python/doc
+# exported figures
+python/gpsParser/*.png
 
 # Compiled Object files
 *.slo
