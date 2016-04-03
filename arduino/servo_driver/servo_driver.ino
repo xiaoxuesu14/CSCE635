@@ -1,4 +1,5 @@
-// @file servo_driver
+/** @file */
+/** @brief Basic test of servo driving with EMILY. Connect GND from Arduino, ESC output, and servo together. Connect ESC voltage to servo voltage line. Connect Arduino pin 6 to servo signal line. Send a '1' character over serial to drive the servo between 0 and 255 (max) - send a '0' to stop.
 
 #define RUDDEROUT 6 // 3,5,6,9,10,11 are the Uno PWM pins out
 #define SERVO_PERIOD_MICROS 100000 // 10 Hz servo write
