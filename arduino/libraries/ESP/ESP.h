@@ -114,6 +114,11 @@ inline int8_t esp_pack_control(uint8_t*msg,float rudd, float thro){
 	return msg_counter;
 };
 
+/** Unpack a control message from buffer.
+ * @param[in] uint8_t* msg parsed message array
+ * @param[out] rudd commanded rudder, should be between -1.0 and 1.0
+ * @param[out] thro commanded throttle, should be between 0.0 and 1.0
+ */
 inline int8_t esp_unpack_control(uint8_t*msg,float* rudd, float* thro){
 	//check the header bytes
 	if (msg[0] != ESP_HEADER1 | msg[1] != ESP_HEADER2)
