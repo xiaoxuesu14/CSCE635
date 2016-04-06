@@ -8,6 +8,26 @@ double gen_random(double low, double high){
   return ( double(rand()) * (high-low)/(double(RAND_MAX)+1) + low );
 }
 
+int test_gps(int n){
+  int counter = 0;
+  for (int k = 0;k<n;k++){
+    uint8_t msg[256];
+    uint32_t lon1 = uint32_t(1e7*gen_random(-180.0,180.0)),
+    lat1 = uint32_t(1e7*gen_random(-180.0,180.0)),
+    lon=0,lat=0;
+    float t1 = gen_random(0.0,1.0e6),t=0;
+    int8_t flag;
+    flag = esp_pack_gps(msg,lon1,lat1,t1);
+    printf("Raw: lon = %l, lat = %l, t=%f\n",lon1,lat1,t1);
+    printf("Packed %d bytes into message\n",flag);
+    if (esp_unpack_control(msg,&lon,&lat,&t) > 0){
+      printf("Message: lon = %l, lat = %l, t=%f\n",lon,lat,t);
+      counter++;
+    }
+  }
+  return counter;
+}
+
 int test_control(int n){
   int counter = 0;
   for (int k = 0;k<n;k++){
@@ -73,6 +93,7 @@ int test_pid(int n){
 
 int main(){
   int monte = 1;
+  printf("%d/%d valid messages in test_gps\n",test_gps(monte),monte);
   printf("%d/%d valid messages in test_control\n",test_control(monte),monte);
   printf("%d/%d valid messages in test_command\n",test_command(monte),monte);
   printf("%d/%d valid messages in test_pid\n",test_pid(monte),monte);
