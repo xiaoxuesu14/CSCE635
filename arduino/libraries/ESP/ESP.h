@@ -12,7 +12,13 @@
 #define MSG_COMMAND 2
 #define MSG_SET_PID 3
 
-// message format: ESP_HEADER1 ESP_HEADER2 MESSAGE_ID <data> ESPFOOTER
+// message lengths
+#define MSG_GPS_LEN 16
+#define MSG_CONTROL_LEN 12
+#define MSG_COMMAND_LEN 12
+#define MSG_SET_PID_LEN 17
+
+// message format: ESP_HEADER1 ESP_HEADER2 MESSAGE_ID <data> CHECKSUM
 
 /** @file */
 
@@ -34,35 +40,60 @@ void pack_int32(uint8_t* buffy,int32_t var){
 void unpack_int32(uint8_t* buffy, int32_t* var){
 	*var = buffy[0] + (buffy[1]<<8) + (buffy[2]<<16) + (buffy[3]<<24);
 }
+/** Parse a message of known length. Determine if the checksum (last byte) in the message matches the checksum in the message.
+ * @param[in] msg uint8_t* that contains a message
+ * @param[in] msg_len length of the message
+ */
+int8_t checksum_valid(uint8_t* msg, uint8_t msg_len){
+	uint8_t chksum = 0,chksum_msg=0;
+	for(uint8_t k=0;k<msg_len-1;k++)
+		chksum+=msg[k];
+	chksum_msg = msg[msg_len-1];
+	return (chksum==chksum_msg);
+}
+
+/** Compute a message checksum.
+ * @brief The checksum is the sum of all bytes in the message expect the last one, as an unsigned 8 bit integer
+ * @param[in] msg uint8_t* that contains a message
+ * @param[in] msg_len length of the message
+ */
+uint8_t compute_checksum(uint8_t*msg,uint8_t msg_len){
+	uint8_t chksum = 0;
+	for(uint8_t k=0;k<msg_len-1;k++)
+		chksum+=msg[k];
+	return chksum;
+}
 
 /** @brief Pack a GPS message
  *  @param[in] uint8_t*msg message buffer to pack the message into
  *	@param[in] int32_t lon Londgitude in (degrees x 10^-7) mapped from -180 to 180 deg
- * 	@param[in] int32_t lat Latitude in (degrees x 10^-7) 
+ * 	@param[in] int32_t lat Latitude in (degrees x 10^-7)
  *	@param[in] float time gps time, if available
  * 	\return {int8_t len: length of message}
  */
 inline int8_t esp_pack_gps(uint8_t*msg,int32_t lon, int32_t lat, float time){
+	uint8_t chksum = 0;
 	int8_t msg_counter = 0;
 	msg[msg_counter] = ESP_HEADER1;
-	msg_counter++;
+	msg_counter++;//1
 	msg[msg_counter] = ESP_HEADER2;
-	msg_counter++;
+	msg_counter++;//2
 	// message ID
 	msg[msg_counter] = MSG_GPS;
-	msg_counter++;
+	msg_counter++;//3
 	// pack longitude
 	pack_int32(&msg[msg_counter], lon);
-	msg_counter += 4;
+	msg_counter += 4;//7
 	// pack latitude
 	pack_int32(&msg[msg_counter], lat);
-	msg_counter += 4;
+	msg_counter += 4;//11
 	// time
 	memcpy(&msg[msg_counter],&time,4);
-	msg_counter += 4;
-	//end byte
-	msg[msg_counter] = ESP_FOOTER;
-	msg_counter++;
+	msg_counter += 4;//15
+	//checksum
+	chksum = compute_checksum(msg,MSG_GPS_LEN);
+	msg[msg_counter]=chksum;
+	msg_counter++;//16
 	return msg_counter;
 };
 /** Unpack a GPS message into longitude, latitude, and time
@@ -71,7 +102,7 @@ inline int8_t esp_pack_gps(uint8_t*msg,int32_t lon, int32_t lat, float time){
 inline int8_t esp_unpack_gps(uint8_t*msg,int32_t* lon, int32_t* lat, float* time){
 	//check the header bytes
 	if (msg[0] != ESP_HEADER1 | msg[1] != ESP_HEADER2)
-		return -1;
+		return -2;
 	//pass over the message ID byte
 	int8_t msg_counter=3;
 	*lon = msg[msg_counter] + (msg[msg_counter+1]<<8) + (msg[msg_counter+2]<<16) + (msg[msg_counter+3]<<24);
@@ -80,10 +111,13 @@ inline int8_t esp_unpack_gps(uint8_t*msg,int32_t* lon, int32_t* lat, float* time
 	msg_counter+=4;
 	memcpy(time,&msg[msg_counter],4);
 	msg_counter = msg_counter + 1;
-	//check footer bytes
-	if (msg[msg_counter] != ESP_FOOTER)
+	// compute the checksum
+	uint8_t chksum = compute_checksum(msg,MSG_GPS_LEN);
+	// determine if message is valid
+	if (checksum_valid(msg,MSG_GPS_LEN))
+		return msg_counter+1;
+	else
 		return -1;
-	return msg_counter;
 };
 
 /** @brief Pack a low-level control message
@@ -93,24 +127,25 @@ inline int8_t esp_unpack_gps(uint8_t*msg,int32_t* lon, int32_t* lat, float* time
  * 	\return {int8_t len: length of message}
  */
 inline int8_t esp_pack_control(uint8_t*msg,float rudd, float thro){
+	uint8_t chksum = 0;
 	//header bytes
 	int8_t msg_counter = 0;
 	msg[msg_counter] = ESP_HEADER1;
-	msg_counter++;
+	msg_counter++;//0
 	msg[msg_counter] = ESP_HEADER2;
-	msg_counter++;
+	msg_counter++;//1
 	// message ID
 	msg[msg_counter] = MSG_CONTROL;
-	msg_counter++;
+	msg_counter++;//2
 	// pack rudder
 	memcpy(&msg[msg_counter],&rudd,4);
-	msg_counter += 4;
+	msg_counter += 4;//6
 	// pack throttle
 	memcpy(&msg[msg_counter],&thro,4);
-	msg_counter += 4;
+	msg_counter += 4;//10
 	//end byte
-	msg[msg_counter] = ESP_FOOTER;
-	msg_counter++;
+	msg[msg_counter] = compute_checksum(msg,MSG_CONTROL_LEN);
+	msg_counter++;//11
 	return msg_counter;
 };
 
@@ -131,10 +166,11 @@ inline int8_t esp_unpack_control(uint8_t*msg,float* rudd, float* thro){
 	//throttle
 	memcpy(thro,&msg[msg_counter],4);
 	msg_counter+=4;
-	//check footer bytes
-	if (msg[msg_counter] != ESP_FOOTER)
+	// determine if message is valid
+	if (checksum_valid(msg,MSG_CONTROL_LEN))
+		return msg_counter+1;
+	else
 		return -1;
-	return msg_counter;
 }
 
 /** @brief Pack a higher-level command with a desired direction and speed
@@ -160,7 +196,7 @@ inline int8_t esp_pack_command(uint8_t*msg,float hdg, float speed){
 	memcpy(&msg[msg_counter],&speed,4);
 	msg_counter += 4;
 	//end byte
-	msg[msg_counter] = ESP_FOOTER;
+	msg[msg_counter] = compute_checksum(msg,MSG_COMMAND_LEN);
 	msg_counter++;
 	return msg_counter;
 };
@@ -177,10 +213,11 @@ inline int8_t esp_unpack_command(uint8_t*msg,float* hdg, float* speed){
 	//speed
 	memcpy(speed,&msg[msg_counter],4);
 	msg_counter+=4;
-	//check footer bytes
-	if (msg[msg_counter] != ESP_FOOTER)
+	// determine if message is valid
+	if (checksum_valid(msg,MSG_COMMAND_LEN))
+		return msg_counter+1;
+	else
 		return -1;
-	return msg_counter;
 }
 
 /** @brief Pack a PID message to set PID gains
@@ -214,7 +251,7 @@ inline int8_t esp_pack_set_pid(uint8_t*msg,uint8_t ch,float KP, float KI, float 
 	memcpy(&msg[msg_counter],&KD,4);
 	msg_counter += 4;
 	//end byte
-	msg[msg_counter] = ESP_FOOTER;
+	msg[msg_counter] = compute_checksum(msg,MSG_SET_PID_LEN);
 	msg_counter++;
 	return msg_counter;
 };
@@ -237,10 +274,11 @@ inline int8_t esp_unpack_set_pid(uint8_t*msg,uint8_t* ch,float* KP, float* KI, f
 	//derivative gain
 	memcpy(KD,&msg[msg_counter],4);
 	msg_counter+=4;
-	//check footer bytes
-	if (msg[msg_counter] != ESP_FOOTER)
+	// determine if message is valid
+	if (checksum_valid(msg,MSG_SET_PID_LEN))
+		return msg_counter+1;
+	else
 		return -1;
-	return msg_counter;
 }
 
 #endif

@@ -1,3 +1,6 @@
+# arduino test files
+arduino/bin
+
 # python compiled files
 *.pyc
 # DOxygen documentation
