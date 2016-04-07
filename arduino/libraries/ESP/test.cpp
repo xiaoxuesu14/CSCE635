@@ -12,16 +12,17 @@ int test_gps(int n){
   int counter = 0;
   for (int k = 0;k<n;k++){
     uint8_t msg[256];
-    uint32_t lon1 = uint32_t(1e7*gen_random(-180.0,180.0)),
-    lat1 = uint32_t(1e7*gen_random(-180.0,180.0)),
+    int32_t lon1 = int32_t(1e7*gen_random(-180.0,180.0)),
+    lat1 = int32_t(1e7*gen_random(-180.0,180.0)),
     lon=0,lat=0;
-    float t1 = gen_random(0.0,1.0e6),t=0;
+    float t1 = gen_random(0.0,1.0e6),
+    t=0;
     int8_t flag;
     flag = esp_pack_gps(msg,lon1,lat1,t1);
-    printf("Raw: lon = %l, lat = %l, t=%f\n",lon1,lat1,t1);
+    printf("Raw: lon = %ul, lat = %ul, t=%f\n",lon1,lat1,t1);
     printf("Packed %d bytes into message\n",flag);
-    if (esp_unpack_control(msg,&lon,&lat,&t) > 0){
-      printf("Message: lon = %l, lat = %l, t=%f\n",lon,lat,t);
+    if (esp_unpack_gps(msg,&lon,&lat,&t) > 0){
+      printf("Message: lon = %dl, lat = %dl, t=%f\n",lon,lat,t);
       counter++;
     }
   }

@@ -1,16 +1,15 @@
 #ifndef __ESP_H_DEFINED__
 #define __ESP_H_DEFINED__
 
-// message header and footer bytes
+// message header bytes
 #define ESP_HEADER1 127
 #define ESP_HEADER2 83
-#define ESP_FOOTER 5
 
 // message IDs
-#define MSG_GPS 0
-#define MSG_CONTROL 1
-#define MSG_COMMAND 2
-#define MSG_SET_PID 3
+#define MSG_GPS 1
+#define MSG_CONTROL 2
+#define MSG_COMMAND 3
+#define MSG_SET_PID 4
 
 // message lengths
 #define MSG_GPS_LEN 16
@@ -40,6 +39,7 @@ void pack_int32(uint8_t* buffy,int32_t var){
 void unpack_int32(uint8_t* buffy, int32_t* var){
 	*var = buffy[0] + (buffy[1]<<8) + (buffy[2]<<16) + (buffy[3]<<24);
 }
+
 /** Parse a message of known length. Determine if the checksum (last byte) in the message matches the checksum in the message.
  * @param[in] msg uint8_t* that contains a message
  * @param[in] msg_len length of the message
@@ -280,5 +280,66 @@ inline int8_t esp_unpack_set_pid(uint8_t*msg,uint8_t* ch,float* KP, float* KI, f
 	else
 		return -1;
 }
+
+/** Parse a single byte.
+ *
+ * Use internal static variable to track whether we've started parsing.
+ * Return values: -2: bad checksum
+ * 								-1: not parsing a message, looking for heading bytes
+ * 								 0: currently parsing a message, still ongoing
+ * 								 >0: just parsed a message, return the message type
+ */
+uint8_t esp_parse_byte(uint8_t byte, uint8_t*buffy){
+	static int msg_counter = 0;
+	static int msg_len = -1;
+	//printf("parse_byte: %d,%d,%d\n",msg_counter,msg_len,byte);
+	if (msg_counter==0){
+		if (byte!=ESP_HEADER1){
+			msg_len = -1;//reset the length
+			return -1;
+		}
+	}
+	if(msg_counter==1){
+		if (byte!=ESP_HEADER2){
+			msg_counter = 0;//reset the counter
+			msg_len = -1;//reset the length
+			return -1;
+		}
+	}
+	if(msg_counter==2){//message id byte
+		// set the target length based on the message type
+		switch(byte){
+			case MSG_GPS:
+				msg_len = MSG_GPS_LEN;
+				break;
+			case MSG_COMMAND:
+				msg_len = MSG_COMMAND_LEN;
+				break;
+			case MSG_CONTROL:
+				msg_len = MSG_CONTROL_LEN;
+				break;
+			case MSG_SET_PID:
+				msg_len = MSG_SET_PID_LEN;
+				break;
+		}
+	}
+	if(msg_counter==(msg_len-1)){
+		// validate the checksum
+		if (checksum_valid(buffy,msg_len)){
+			msg_counter = 0;
+			msg_len = -1;
+			return 1;
+		}
+		else{
+			msg_counter = 0;
+			msg_len = -1;
+			return -2;
+		}
+	}
+
+	buffy[msg_counter] = byte;
+	msg_counter++;
+	return 0;
+};
 
 #endif
