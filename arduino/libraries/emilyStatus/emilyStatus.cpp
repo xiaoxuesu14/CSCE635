@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include "emilyStatus.h"
 
 double deg2m(double x){

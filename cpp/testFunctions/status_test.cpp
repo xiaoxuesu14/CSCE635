@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <stdint.h>
+#include <string.h>
 #include "emilyStatus.h"
 
 int main(){

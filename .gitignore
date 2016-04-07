@@ -1,5 +1,5 @@
-# arduino test files
-arduino/bin
+# C++ binaries files
+cpp/bin
 
 # python compiled files
 *.pyc
