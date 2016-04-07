@@ -1,6 +1,9 @@
 #ifndef __ESP_H_DEFINED__
 #define __ESP_H_DEFINED__
 
+#include <stdint.h>
+#include <string.h>
+
 // message header bytes
 #define ESP_HEADER1 127
 #define ESP_HEADER2 83
@@ -25,7 +28,7 @@
   * @param[in] uint8_t* buffy array to put values in
   * @param[in] int32_t var value to put in array
   */
-void pack_int32(uint8_t* buffy,int32_t var){
+inline void pack_int32(uint8_t* buffy,int32_t var){
 	buffy[0] = var & 255;
 	buffy[1] = (var>>8) & 255;
 	buffy[2] = (var>>16) & 255;
@@ -36,7 +39,7 @@ void pack_int32(uint8_t* buffy,int32_t var){
   * @param[in] uint8_t* buffy array to put values in
   * @param[out] int32_t var value to read from array
   */
-void unpack_int32(uint8_t* buffy, int32_t* var){
+inline void unpack_int32(uint8_t* buffy, int32_t* var){
 	*var = buffy[0] + (buffy[1]<<8) + (buffy[2]<<16) + (buffy[3]<<24);
 }
 
@@ -44,7 +47,7 @@ void unpack_int32(uint8_t* buffy, int32_t* var){
  * @param[in] msg uint8_t* that contains a message
  * @param[in] msg_len length of the message
  */
-int8_t checksum_valid(uint8_t* msg, uint8_t msg_len){
+inline int8_t checksum_valid(uint8_t* msg, uint8_t msg_len){
 	uint8_t chksum = 0,chksum_msg=0;
 	for(uint8_t k=0;k<msg_len-1;k++)
 		chksum+=msg[k];
@@ -57,7 +60,7 @@ int8_t checksum_valid(uint8_t* msg, uint8_t msg_len){
  * @param[in] msg uint8_t* that contains a message
  * @param[in] msg_len length of the message
  */
-uint8_t compute_checksum(uint8_t*msg,uint8_t msg_len){
+inline uint8_t compute_checksum(uint8_t*msg,uint8_t msg_len){
 	uint8_t chksum = 0;
 	for(uint8_t k=0;k<msg_len-1;k++)
 		chksum+=msg[k];
@@ -289,7 +292,7 @@ inline int8_t esp_unpack_set_pid(uint8_t*msg,uint8_t* ch,float* KP, float* KI, f
  * 								 0: currently parsing a message, still ongoing
  * 								 >0: just parsed a message, return the message type
  */
-uint8_t esp_parse_byte(uint8_t byte, uint8_t*buffy){
+inline int8_t esp_parse_byte(uint8_t byte, uint8_t*buffy){
 	static int msg_counter = 0;
 	static int msg_len = -1;
 	//printf("parse_byte: %d,%d,%d\n",msg_counter,msg_len,byte);
@@ -321,8 +324,15 @@ uint8_t esp_parse_byte(uint8_t byte, uint8_t*buffy){
 			case MSG_SET_PID:
 				msg_len = MSG_SET_PID_LEN;
 				break;
+			default:
+				msg_counter=0;
+				msg_len=-1;
+				return -1;
+				break;
 		}
 	}
+	// store the new byte
+	buffy[msg_counter] = byte;
 	if(msg_counter==(msg_len-1)){
 		// validate the checksum
 		if (checksum_valid(buffy,msg_len)){
@@ -336,8 +346,6 @@ uint8_t esp_parse_byte(uint8_t byte, uint8_t*buffy){
 			return -2;
 		}
 	}
-
-	buffy[msg_counter] = byte;
 	msg_counter++;
 	return 0;
 };

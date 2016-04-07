@@ -1,6 +1,8 @@
 #ifndef __EMILYSTATUS_H_DEFINED__
 #define __EMILYSTATUS_H_DEFINED__
 
+#include <stdint.h>
+
 /** Constant for converting GPS (degrees) to position in meters.
  * @brief equals degrees2radians factor (x) earth radius (meters)
  */
