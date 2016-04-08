@@ -60,3 +60,14 @@ uint32_t commParser::get_bad_packets(){
 uint32_t commParser::get_bad_checksums(){
   return bad_checksums;
 }
+
+void commParser::misc_tasks(uint32_t millis){
+  // check the time since last message and set the status appropriately
+  if (millis-last_message_millis < TIMEOUT_WARNING_MILLIS)
+    status->comm_status = COMM_STATUS_HEALTHY;
+  if (millis-last_message_millis > TIMEOUT_WARNING_MILLIS & millis-last_message_millis < TIMEOUT_LOST_MILLIS)
+    status->comm_status = COMM_STATUS_WARNING;
+  if (millis-last_message_millis > TIMEOUT_LOST_MILLIS)
+    status->comm_status = COMM_STATUS_LOST;
+  // send periodic messages
+}

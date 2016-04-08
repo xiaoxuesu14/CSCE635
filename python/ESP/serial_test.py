@@ -3,12 +3,15 @@ import time
 import serial
 import struct
 
+SERIAL_RATE_HZ = 0.1
+SERIAL_PERIOD = 1.0/SERIAL_RATE_HZ
+
 ser = serial.Serial('/dev/ttyACM0',9600,timeout=0.01)
 
 ser.open()
 
 counter = 0
-tnext = time.clock() + 1.0
+tnext = time.clock() + SERIAL_PERIOD
 ch = ''
 while counter < 5:
     if time.clock() >= tnext:

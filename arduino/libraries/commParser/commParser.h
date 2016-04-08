@@ -5,6 +5,13 @@
 #include "emilyStatus.h"
 #include "ESP.h"
 
+/** After this many milliseconds without receiving a message, set comm mode to WARNING */
+#define TIMEOUT_WARNING_MILLIS 1000
+/** After this many milliseconds without receiving a message, set comm mode to LOST */
+#define TIMEOUT_LOST_MILLIS 10000
+/** Target stream rate for GPS messages in millliseconds */
+#define STREAM_RATE_GPS 1000
+
 class commParser
 {
 	public:
@@ -19,8 +26,15 @@ class commParser
 		uint32_t get_bad_packets();
 		uint32_t get_bad_checksums();
 		uint8_t msg[256]; /*!< Message buffer used with ESP */ // should be private
+		/** Perform miscellaneous tasks
+		 *
+		 *  @detail Check the time since last received message and update the status
+		 *					Send periodic messages
+		 *	@param[in] Current clock time in milliseconds
+		 */
+		void misc_tasks(uint32_t millis);
 	private:
-		/** Generic message that is called whenever we receive a complete message.
+		/** Generic message that is called whenever we receive a the last byte of a message.
 		  *
 		  */
 		void handleMsg();
