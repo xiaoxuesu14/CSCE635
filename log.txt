@@ -1,2 +1,5 @@
 2016-04-08: Connected XBees, basic checkout, they talk to each other
-2016-04-09: Soldered XBee explorer board and connected to Arduino. Basic Arduino-> PC comms over XBee using existing sketch. Next: add GPS pins and read GPS with Arduino
+2016-04-09: Soldered XBee explorer board and connected to Arduino. Basic Arduino-> PC comms over XBee using existing sketch. Soldered pins to GPS board and Pro Micro.
+	Realized that DC/DC converters are 7-16 V, not 5.5V which is what we have. Plan to design passive resistor voltage divider.
+	Added automatic message streaming to Arduino sketch. Confirmed messages received on PC. Currently not parsed.
+
