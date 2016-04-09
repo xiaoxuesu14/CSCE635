@@ -6,6 +6,11 @@ commParser::commParser(emilyStatus*st){
   bad_checksums=0;
   bad_packets=0;
   status = st;
+  // set the stream times to zero
+  next_stream_time_millis[0] = 0;
+  next_stream_time_millis[1] = 0;
+  // sest number of messages to zero
+  received_messages = 0;
 }
 
 void commParser::newBytes(uint8_t*bytes,int len,uint32_t millis){
@@ -24,6 +29,8 @@ void commParser::newBytes(uint8_t*bytes,int len,uint32_t millis){
 }
 
 void commParser::handleMsg(){
+  //increment the counter
+  received_messages++;
   //switch based on the message ID
   switch (msg[2]){
     case MSG_GPS:
@@ -36,12 +43,13 @@ void commParser::handleMsg(){
       else//increment the bad packet counter
         bad_packets++;
       break;
-    case MSG_CONTROL:
+    case MSG_CONTROL:/** Direct control of rudder/throttle */
       float rudd,thro;
       if (esp_unpack_control(msg,&rudd, &thro) > 0){
-        //set status
+        //set status rudder, throttle, and mode
         status->control_rudder = rudd;
         status->control_throttle = thro;
+        status->control_mode = CONTROL_MODE_DIRECT;
       }
       else//increment the bad packet counter
         bad_packets++;
@@ -65,9 +73,50 @@ void commParser::misc_tasks(uint32_t millis){
   // check the time since last message and set the status appropriately
   if (millis-last_message_millis < TIMEOUT_WARNING_MILLIS)
     status->comm_status = COMM_STATUS_HEALTHY;
-  if (millis-last_message_millis > TIMEOUT_WARNING_MILLIS & millis-last_message_millis < TIMEOUT_LOST_MILLIS)
+  // if we're in a non-healthy comm status mode, set the control mode to passive and wait to see if things improve
+  if (millis-last_message_millis > TIMEOUT_WARNING_MILLIS & millis-last_message_millis < TIMEOUT_LOST_MILLIS){
     status->comm_status = COMM_STATUS_WARNING;
-  if (millis-last_message_millis > TIMEOUT_LOST_MILLIS)
+    status->control_mode = CONTROL_MODE_PASSIVE;
+  }
+  if (millis-last_message_millis > TIMEOUT_LOST_MILLIS){
     status->comm_status = COMM_STATUS_LOST;
-  // send periodic messages
+    status->control_mode = CONTROL_MODE_PASSIVE;
+  }
+  // reset the send buffer position
+  send_buffer_counter = 0;
+  if( status->comm_status == COMM_STATUS_HEALTHY){
+    // send periodic messages
+    for(int k = 0;k<2;k++){
+      if (next_stream_time_millis[k] <= millis){
+        if (k == 0){ // GPS stream, do nothing for now
+          next_stream_time_millis[k] = millis + STREAM_PERIOD_GPS;
+          continue;//TODO send GPS message when we add GPS
+        }
+        if (k == 1){ // control-related message stream
+          next_stream_time_millis[k] = millis + STREAM_PERIOD_CONTROL;
+          if (esp_pack_control(&send_buffer[send_buffer_counter],status->control_rudder,status->control_throttle) > 0)
+            send_buffer_counter+=MSG_CONTROL_LEN;
+          if (status->control_mode == CONTROL_MODE_DIRECT){// in DIRECT mode, echo the rudder and throttle commands
+
+          }
+          else if(status->control_mode == CONTROL_MODE_INDIRECT){// in INDIRECT mode, send the current rudder and throttle settings
+            continue;//TODO stream messages after we add this functionality
+          }
+        }
+      }
+    }
+  }
+}
+
+uint8_t commParser::bytes_to_send(){
+  return send_buffer_counter;
+}
+
+uint8_t commParser::get_next_byte(){
+  send_buffer_counter--;
+  return send_buffer[send_buffer_counter];
+}
+
+uint32_t commParser::get_number_received_messages(){
+  return received_messages;
 }

@@ -14,11 +14,11 @@
 /** passive control mode - initialized, no commands received */
 #define CONTROL_MODE_PASSIVE 2
 /** communication status: healthy (rate >1 Hz messages of any type) */
-#define COMM_STATUS_HEALTHY 1
+//#define COMM_STATUS_HEALTHY 1
 /** communication status: slow or weak (> 1 second since last message) */
-#define COMM_STATUS_WARNING 2
+//#define COMM_STATUS_WARNING 2
 /** communciation status: lost link (> 10 seconds since last message) */
-#define COMM_STATUS_LOST 3
+//#define COMM_STATUS_LOST 3
 
 double deg2m(double);/*!< Convert a double in degrees to arc length in meters */
 
@@ -31,7 +31,7 @@ enum commStatus{
   COMM_STATUS_HEALTHY,
   COMM_STATUS_WARNING,
   COMM_STATUS_LOST
-}
+};
 
 /*! Class for holding GPS data */
 class gpsData{

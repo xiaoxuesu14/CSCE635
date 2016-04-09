@@ -1,0 +1,2 @@
+2016-04-08: Connected XBees, basic checkout, they talk to each other
+2016-04-09: Soldered XBee explorer board and connected to Arduino. Basic Arduino-> PC comms over XBee using existing sketch. Next: add GPS pins and read GPS with Arduino
