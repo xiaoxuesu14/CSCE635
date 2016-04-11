@@ -30,7 +30,9 @@ private:
  * Standard format is: xxxyy.zz, where xxx is whole degrees, and yy.zz is minutes. Maximum percent error is about 0.0001 ... in degrees
  */
 int32_t convertGPS(char* buffer);
-/** Convert GPS time field to a UTC time in seconds since midnight. Rolls over at midnight UTC! */
+/** Convert GPS time field to a UTC time in seconds (INT) since midnight. Rolls over at midnight UTC! */
 int32_t convertTime(char*buffer);
+/** Convert GPS time field to a UTC time in seconds (FLOAT) since midnight. Rolls over at midnight UTC! */
+float convertTimef(char*buffer);
 
 #endif

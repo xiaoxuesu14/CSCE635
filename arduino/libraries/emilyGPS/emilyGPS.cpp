@@ -28,8 +28,10 @@ void emilyGPS::parseSentence(){
   if (strcmp(field, "$GPRMC") == 0)
   {
     // read time
-    //getField(field,1);
-
+    getField(field,1);
+    //int32_t timei = convertTime(field); // time in seconds
+    int32_t timei = convertTimef(field); // time in seconds
+    //int32_t timei = 0;
     // read lat
     getField(field, 3);  // number in 0.01 * degrees
     int32_t lat = convertGPS(field);
@@ -45,7 +47,7 @@ void emilyGPS::parseSentence(){
       lon = -lon;
     }
     // set the status object
-    status->gpsNow.set(lat,lon,0.0);
+    status->gpsNow.set(lat,lon,float(timei));
   }
 }
 
@@ -82,6 +84,16 @@ int32_t convertGPS(char* buffer){
   ret += int32_t(1e7*(5.0*rem)/3.0);//convert 0.01*minutes to degrees -> multiply by 100, then divide by 60 minutes/deg
   return ret;
 }
+
+float convertTimef(char*buffer){
+  float time = atof(buffer);
+  int32_t hr = int32_t(1.0e-4*time);
+  time = time - (1e4*hr);
+  int32_t min = int32_t(1.0e-2*time);
+  float sec = time-(1e2*min);
+  return (sec + min*60 + hr*3600);
+}
+
 
 int32_t convertTime(char*buffer){
   int32_t time = atol(buffer);
