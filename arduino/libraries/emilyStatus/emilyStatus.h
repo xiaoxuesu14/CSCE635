@@ -4,23 +4,20 @@
 #include <stdint.h>
 
 /** Constant for converting GPS (degrees) to position in meters.
- * @brief equals degrees2radians factor (x) earth radius (meters)
+ * @brief equals degrees2radians factor (x) earth radius (meters) 6378100*pi/180*1e-7
  */
-#define GPSDATA_D2R_RE 111194926.645
+#define GPSDATA_D2R_RE 0.0111318845
 /** Direct control mode - we are sending offboard commands for the rudder and throttle */
 #define CONTROL_MODE_DIRECT 0
 /** Direct control mode - we are sending heading and speed commands and do PID control locally */
 #define CONTROL_MODE_INDIRECT 1
 /** passive control mode - initialized, no commands received */
 #define CONTROL_MODE_PASSIVE 2
-/** communication status: healthy (rate >1 Hz messages of any type) */
-//#define COMM_STATUS_HEALTHY 1
-/** communication status: slow or weak (> 1 second since last message) */
-//#define COMM_STATUS_WARNING 2
-/** communciation status: lost link (> 10 seconds since last message) */
-//#define COMM_STATUS_LOST 3
 
-double deg2m(double);/*!< Convert a double in degrees to arc length in meters */
+#define GPS_HOME_LAT_DEFAULT 963400000
+#define GPS_HOME_LON_DEFAULT 306200000
+
+double deg2m(int32_t);/*!< Convert a double in (10^-7 degrees) to arc length in meters */
 
 /** Enumated type for the communication health.
  * Meanings: HEALTHY less than 1 second since the last message from the master
@@ -37,14 +34,32 @@ enum commStatus{
 class gpsData{
 public:
   gpsData();
-  double lon; /*!< Longitude (degrees east) */
-  double lat; /*!< Latitutde (degrees north) */
+  int32_t lon; /*!< Longitude (10^-7 degrees east) */
+  int32_t lat; /*!< Latitutde (10^-7 degrees north) */
   double t; /*!< Time (sec) */
-  double x; /*!< X = north (meters) data in north-east earth frame */
-  double y; /*!< Y = east (meters) data in north-east earth frame */
+  double x; /*!< X = north (meters) data in north-east earth frame. Defined relative to a fixed point near USA for better precision. */
+  double y; /*!< Y = east (meters) data in north-east earth frame. Defined relative to a fixed point near USA for better precision. */
   bool init; /*!< Status indicator so we can tell if the value of a GPS object has been set */
-  void set(double lati,double longi,double ti); /*!< Set the value of GPS data object and compute x-y */
+  /** Set the value of GPS data object and compute x-y
+   *
+   * @param[in] lati latitutde reading in DEGREES
+   * @param[in] loni longitude reading in DEGREES
+   * @param[in] ti time from GPS in seconds
+   */
+  void set(double lati,double longi,double ti);
+  /** Set the value of GPS data object and compute x-y.
+   *
+   * We use 10^-7 degrees as the units for compatibility with Arduino, which lacks double floating-point precision.
+   *
+   * @param[in] lati latitutde reading in units of (10^-7 degrees)
+   * @param[in] loni longitude reading in units of (10^-7 degrees)
+   * @param[in] ti time from GPS in seconds
+   */
   void set(int32_t lati,int32_t longi,double ti); /*!< Set the value of GPS data object and compute x-y. Uses long inputs to be compatible with comm protocol */
+  void set_home(int32_t lat1,int32_t lon1); /*!< Change from default home lat/lon coordinates to new ones. Units are (10^-7 degrees) */
+private:
+  int32_t lat_home;
+  int32_t lon_home;
 };
 
 class emilyStatus

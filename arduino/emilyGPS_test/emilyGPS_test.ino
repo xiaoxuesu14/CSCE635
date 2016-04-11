@@ -32,11 +32,16 @@ void loop()
     millis_next += READ_RATE_MILLIS;
     if (stat.gpsNow.init){
       Serial.print("*********************\n");
+      Serial.print("Time: ");
+      Serial.print(stat.gpsNow.t);
       Serial.print("Lat: ");
       Serial.print(stat.gpsNow.lat);
-  
       Serial.print(" Long: ");
       Serial.print(stat.gpsNow.lon);
+      Serial.print(" X: ");
+      Serial.print(stat.gpsNow.x);
+      Serial.print(" Y: ");
+      Serial.print(stat.gpsNow.y);
       Serial.print("\n");
     }
   }

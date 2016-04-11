@@ -30,7 +30,7 @@ void emilyGPS::parseSentence(){
     // read time
     getField(field,1);
     //int32_t timei = convertTime(field); // time in seconds
-    int32_t timei = convertTimef(field); // time in seconds
+    float timei = convertTimef(field); // time in seconds
     //int32_t timei = 0;
     // read lat
     getField(field, 3);  // number in 0.01 * degrees
@@ -43,11 +43,11 @@ void emilyGPS::parseSentence(){
     getField(field, 5);  // number in 0.01 * degrees
     int32_t lon = convertGPS(field);
     getField(field, 6);  // E/W
-    if (strcmp(field,"E")==0){
+    if (strcmp(field,"W")==0){
       lon = -lon;
     }
     // set the status object
-    status->gpsNow.set(lat,lon,float(timei));
+    status->gpsNow.set(lat,lon,timei);
   }
 }
 
