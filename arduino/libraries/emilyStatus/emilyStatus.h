@@ -14,8 +14,8 @@
 /** passive control mode - initialized, no commands received */
 #define CONTROL_MODE_PASSIVE 2
 
-#define GPS_HOME_LAT_DEFAULT 963400000
-#define GPS_HOME_LON_DEFAULT 306200000
+#define GPS_HOME_LAT_DEFAULT 306200000
+#define GPS_HOME_LON_DEFAULT -963400000
 
 double deg2m(int32_t);/*!< Convert a double in (10^-7 degrees) to arc length in meters */
 

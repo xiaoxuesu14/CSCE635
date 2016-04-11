@@ -14,7 +14,7 @@ gpsData::gpsData(){
   x = 0.0;
   y = 0.0;
   lat_home = GPS_HOME_LAT_DEFAULT;
-  lon_home = GPS_HOME_LAT_DEFAULT;
+  lon_home = GPS_HOME_LON_DEFAULT;
 }
 
 void gpsData::set(double lati,double loni,double ti){

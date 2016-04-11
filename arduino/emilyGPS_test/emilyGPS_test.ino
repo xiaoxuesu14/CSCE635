@@ -4,6 +4,7 @@
 
 SoftwareSerial gpsSerial(8, 9); // RX, TX (TX not used)
 #define READ_RATE_MILLIS 1000
+#define PRINT_RAW false
 
 emilyStatus stat;
 emilyGPS GPS(&stat);
@@ -26,7 +27,8 @@ void loop()
   {
     char ch = gpsSerial.read();
     GPS.parseBytes(ch);
-    Serial.print(ch);
+    if(PRINT_RAW)
+      Serial.print(ch);
   }
   if (millis_now >= millis_next){
     millis_next += READ_RATE_MILLIS;
