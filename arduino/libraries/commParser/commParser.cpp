@@ -90,7 +90,10 @@ void commParser::misc_tasks(uint32_t millis){
       if (next_stream_time_millis[k] <= millis){
         if (k == 0){ // GPS stream, do nothing for now
           next_stream_time_millis[k] = millis + STREAM_PERIOD_GPS;
-          continue;//TODO send GPS message when we add GPS
+          if (status->gpsNow.init){
+            // send GPS if initialized
+            continue;//TODO send GPS message when we add GPS
+          }
         }
         if (k == 1){ // control-related message stream
           next_stream_time_millis[k] = millis + STREAM_PERIOD_CONTROL;
