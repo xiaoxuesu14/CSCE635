@@ -44,7 +44,7 @@ public:
   double y; /*!< Y = east (meters) data in north-east earth frame */
   bool init; /*!< Status indicator so we can tell if the value of a GPS object has been set */
   void set(double lati,double longi,double ti); /*!< Set the value of GPS data object and compute x-y */
-  void set(long lati,long longi,double ti); /*!< Set the value of GPS data object and compute x-y. Uses long inputs to be compatible with comm protocol */
+  void set(int32_t lati,int32_t longi,double ti); /*!< Set the value of GPS data object and compute x-y. Uses long inputs to be compatible with comm protocol */
 };
 
 class emilyStatus

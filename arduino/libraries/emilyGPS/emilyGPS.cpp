@@ -1,6 +1,6 @@
 #include <stdint.h>
-#include <cstdlib>
-#include <cstring>
+#include <stdlib.h>
+#include <string.h>
 #include "emilyGPS.h"
 
 emilyGPS::emilyGPS(emilyStatus*st){
@@ -18,26 +18,31 @@ void emilyGPS::parseBytes(char ch){
     sentence[parseCounter] = '\0';
     parseCounter = 0;
     // run some parser function
+    parseSentence();
   }
 }
 
 void emilyGPS::parseSentence(){
-  char field[20];
+  char field[sentenceSize];
   getField(field, 0);
   if (strcmp(field, "$GPRMC") == 0)
   {
-    long lon, lat;
+    // read time
+    //getField(field,1);
+
+    // read lat
     getField(field, 3);  // number in 0.01 * degrees
-    lon = atof(field)*100000;// scale
+    int32_t lat = convertGPS(field);
     getField(field, 4); // N/S
     if (strcmp(field,"S")==0){
-      lon = -lon;
+      lat = -lat;
     }
+    // read lon
     getField(field, 5);  // number in 0.01 * degrees
-    lat = atof(field)*100000;// scale
+    int32_t lon = convertGPS(field);
     getField(field, 6);  // E/W
     if (strcmp(field,"E")==0){
-      lat = -lat;
+      lon = -lon;
     }
     // set the status object
     status->gpsNow.set(lat,lon,0.0);
@@ -66,11 +71,23 @@ void emilyGPS::getField(char* buffer, int index)
   buffer[fieldPos] = '\0';
 }
 
+void emilyGPS::misc_tasks(){
+  return;
+}
+
 int32_t convertGPS(char* buffer){
   double deg = (atof(buffer)*0.01);
   double rem = deg - (int32_t(deg));
   int32_t ret = int32_t(deg)*1e7;
   ret += int32_t(1e7*(5.0*rem)/3.0);//convert 0.01*minutes to degrees -> multiply by 100, then divide by 60 minutes/deg
   return ret;
+}
 
+int32_t convertTime(char*buffer){
+  int32_t time = atol(buffer);
+  int32_t hr = int32_t(1.0e-4*time);
+  time = time - (1e4*hr);
+  int32_t min = int32_t(1.0e-2*time);
+  int32_t sec = time-(1e2*min);
+  return (sec + min*60 + hr*3600);
 }

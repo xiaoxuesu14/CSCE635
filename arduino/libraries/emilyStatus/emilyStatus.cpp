@@ -23,7 +23,7 @@ void gpsData::set(double lati,double loni,double ti){
   y = deg2m(lon);
 }
 
-void gpsData::set(long lati,long loni,double ti){
+void gpsData::set(int32_t lati,int32_t loni,double ti){
   /*lat = (1.0e-7*lati);lon = (1.0e-7*loni);t = ti;x = deg2m(lat);y = deg2m(lon);*/
   set((1.0e-7*lati),(1.0e-7*loni),ti);
 }
