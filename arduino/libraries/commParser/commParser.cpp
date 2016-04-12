@@ -84,40 +84,41 @@ void commParser::misc_tasks(uint32_t millis){
   }
   // reset the send buffer position
   send_buffer_counter = 0;
-  if( status->comm_status == COMM_STATUS_HEALTHY){
-    // send periodic messages
-    for(int k = 0;k<2;k++){
-      if (next_stream_time_millis[k] <= millis){
-        if (k == 0){ // GPS stream, do nothing for now
-          next_stream_time_millis[k] = millis + STREAM_PERIOD_GPS;
-          if (status->gpsNow.init){
-            // send GPS if initialized
-            continue;//TODO send GPS message when we add GPS
-          }
+  send_buffer_counter_helper = 0;
+  //if( status->comm_status == COMM_STATUS_HEALTHY){
+  // send periodic messages
+  for(int k = 0;k<2;k++){
+    if (next_stream_time_millis[k] <= millis){
+      if (k == 0){ // GPS stream, send current GPS
+        next_stream_time_millis[k] = millis + STREAM_PERIOD_GPS;
+        if (status->gpsNow.init){
+          // send GPS if initialized
+          if (esp_pack_gps(&send_buffer[send_buffer_counter],status->gpsNow.lon,status->gpsNow.lat,status->gpsNow.t) > 0)
+            send_buffer_counter+=MSG_GPS_LEN;
         }
-        if (k == 1){ // control-related message stream
-          next_stream_time_millis[k] = millis + STREAM_PERIOD_CONTROL;
+      }
+      if (k == 1){ // control-related message stream
+        next_stream_time_millis[k] = millis + STREAM_PERIOD_CONTROL;
+        if (status->control_mode == CONTROL_MODE_DIRECT){// in DIRECT mode, echo the rudder and throttle commands
           if (esp_pack_control(&send_buffer[send_buffer_counter],status->control_rudder,status->control_throttle) > 0)
             send_buffer_counter+=MSG_CONTROL_LEN;
-          if (status->control_mode == CONTROL_MODE_DIRECT){// in DIRECT mode, echo the rudder and throttle commands
-
-          }
-          else if(status->control_mode == CONTROL_MODE_INDIRECT){// in INDIRECT mode, send the current rudder and throttle settings
-            continue;//TODO stream messages after we add this functionality
-          }
+        }
+        else if(status->control_mode == CONTROL_MODE_INDIRECT){// in INDIRECT mode, send the current rudder and throttle settings
+          continue;//TODO stream messages after we add this functionality
         }
       }
     }
   }
+  //}
 }
 
 uint8_t commParser::bytes_to_send(){
-  return send_buffer_counter;
+  return send_buffer_counter-send_buffer_counter_helper;
 }
 
 uint8_t commParser::get_next_byte(){
-  send_buffer_counter--;
-  return send_buffer[send_buffer_counter];
+  send_buffer_counter_helper++;
+  return send_buffer[send_buffer_counter_helper-1];
 }
 
 uint32_t commParser::get_number_received_messages(){

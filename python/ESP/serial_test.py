@@ -17,7 +17,7 @@ tnext = time.clock() + SERIAL_PERIOD
 ch = ''
 while counter < 20:
     if time.clock() >= tnext:
-        print(ch)
+        print(ch.encode('hex'))
         ch = ''
         tnext = tnext + SERIAL_PERIOD
         counter = counter+1

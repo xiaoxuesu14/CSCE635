@@ -3,7 +3,8 @@
 #include "emilyGPS.h"
 
 SoftwareSerial gpsSerial(8, 9); // RX, TX (TX not used)
-#define READ_RATE_MILLIS 1000
+#define READ_RATE_MILLIS 200
+#define GPS_BAUD_RATE 9600
 #define PRINT_RAW true
 
 emilyStatus stat;
@@ -16,7 +17,7 @@ void setup()
 {
   Serial.begin(9600);
   Serial.print("Initialized emilyGPS_test\n");
-  gpsSerial.begin(9600);
+  gpsSerial.begin(GPS_BAUD_RATE);
 }
 
 void loop()

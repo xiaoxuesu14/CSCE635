@@ -54,6 +54,7 @@ class commParser
 		uint32_t next_stream_time_millis[2];/*!< Target times at which to send messages that are streamed periodically */
 		uint8_t send_buffer[256]; /*!< Message buffer used to send messages */
 		uint8_t send_buffer_counter;/*!< Counter for tracking the length of the send buffer */
+		uint8_t send_buffer_counter_helper;/*!< Counts how many bytes we've sent out of total */
 		uint32_t received_messages;/*!< Counts number of messages received. */
 };
 

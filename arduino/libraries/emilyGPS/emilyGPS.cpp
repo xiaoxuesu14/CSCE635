@@ -17,7 +17,7 @@ void emilyGPS::parseBytes(char ch){
   {
     sentence[parseCounter] = '\0';
     parseCounter = 0;
-    // run some parser function
+    // run parser function
     parseSentence();
   }
 }
