@@ -3,6 +3,7 @@
 #include "emilyStatus.h"
 #include "commParser.h"
 #include "emilyGPS.h"
+#include "emilyControl.h"
 
 /** serial object for reading GPS */
 SoftwareSerial gpsSerial(8, 9); // RX, TX (TX not used)
@@ -18,6 +19,8 @@ emilyStatus stat;
 commParser comm(&stat);
 /** GPS object */
 emilyGPS GPS(&stat);
+/** Control object */
+emilyControl control(&stat);
 
 uint32_t millis_now = 0;
 uint32_t serial_millis_next = 0;
@@ -73,6 +76,12 @@ void loop() {
   // call periodic functions
   comm.misc_tasks(millis_now);
   GPS.misc_tasks();
+  control.misc_tasks();
+
+  // read the control values and write them
+  if(control.new_control() > 0){
+    //TODO add reading of control and write to servos
+  }
 
   // send any bytes in the transmit buffer
   while(comm.bytes_to_send() > 0){

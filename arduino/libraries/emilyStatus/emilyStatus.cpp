@@ -30,6 +30,7 @@ void gpsData::set(double lati,double loni,double ti){
 
 void gpsData::set(int32_t lati,int32_t loni,double ti){
   init = true;
+  new_value = 1;
   lat = lati;
   lon = loni;
   t = ti;
@@ -37,9 +38,19 @@ void gpsData::set(int32_t lati,int32_t loni,double ti){
   y = deg2m(lon-lon_home);
 }
 
+int8_t gpsData::is_new(){
+  return new_value;
+}
+
 void gpsData::set_home(int32_t lat1,int32_t lon1){
   lat_home = lat1;
   lon_home = lon1;
+}
+
+void gpsData::get(float*xi,float*yi){
+  *xi = x;
+  *yi = y;
+  new_value = 0;
 }
 
 emilyStatus::emilyStatus(){

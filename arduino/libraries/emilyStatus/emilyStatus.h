@@ -47,6 +47,7 @@ public:
    * @param[in] ti time from GPS in seconds
    */
   void set(double lati,double longi,double ti);
+  int8_t is_new();/*<! Return the current value of 'new' */
   /** Set the value of GPS data object and compute x-y.
    *
    * We use 10^-7 degrees as the units for compatibility with Arduino, which lacks double floating-point precision.
@@ -57,9 +58,11 @@ public:
    */
   void set(int32_t lati,int32_t longi,double ti); /*!< Set the value of GPS data object and compute x-y. Uses long inputs to be compatible with comm protocol */
   void set_home(int32_t lat1,int32_t lon1); /*!< Change from default home lat/lon coordinates to new ones. Units are (10^-7 degrees) */
+  void get(float*x,float*y);/*!< Return the current position state for control purposes */
 private:
   int32_t lat_home;
   int32_t lon_home;
+  int8_t new_value;/*!< Return 0 if the current state has already been accessed with get(). Set to 1 whenever set() is called. */
 };
 
 class emilyStatus
