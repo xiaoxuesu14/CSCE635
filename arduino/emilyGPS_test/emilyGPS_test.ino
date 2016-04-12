@@ -4,7 +4,7 @@
 
 SoftwareSerial gpsSerial(8, 9); // RX, TX (TX not used)
 #define READ_RATE_MILLIS 1000
-#define PRINT_RAW false
+#define PRINT_RAW true
 
 emilyStatus stat;
 emilyGPS GPS(&stat);

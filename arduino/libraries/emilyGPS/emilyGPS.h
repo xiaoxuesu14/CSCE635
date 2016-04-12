@@ -8,7 +8,6 @@
 const int sentenceSize = 80;
 /** @file */
 
-
 class emilyGPS{
 public:
   /** Constructor
@@ -19,11 +18,26 @@ public:
   void parseBytes(char ch);/** Parse a sequence of raw bytes from serial port */
   void parseSentence();/** Parse a sentence from the GPS */
   void misc_tasks();/** Placeholder for miscellaneous tasks */
+  /** Send the command to set the baud rate. Returns a string
+   *
+   * @param[out] buffer variable in which to put the command
+   * @param[in] baud_var set the baud rate according to the binary command set. 0 = 4800 kbaud, 1 = 9600, 2 = 19200, 3 = 38400, 4 = 57600, 5 = 115200
+   * @param[out] the number of bytes written
+   */
+  uint8_t send_command_configure_serial_port(char*buffer,uint8_t baud_var);
+  /** Send the command to set the target update rate.
+   *
+   * @param[out] buffer variable in which to put the command
+   * @param[in] rate The rate in Hz. [1,2,4,5,8,10,20] are supported
+   * @param[out] the number of bytes written
+   */
+  uint8_t send_command_configure_position_rate(char*buffer,uint8_t rate);
 private:
   char sentence[sentenceSize];/** Buffer that holds incoming strings */
   emilyStatus* status; /** Pointer to the global status object */
   int parseCounter; /** Counts the position within the buffer */
   void getField(char* buffer, int index);/** Read a field from sentence */
+  uint8_t compute_checksum(char*buffer,uint8_t len);/** Compute the checksum for Venus638FLPx binary commands */
 };
 
 /** Convert a GPS character field for longitude or latitude in standard format to a int32_t format in (10^-7 degrees)

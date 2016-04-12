@@ -13,3 +13,5 @@ include_directories(../arduino/libraries/emilyGPS)
 add_executable(convertGPS ../testFunctions/convertGPS_test.cpp ../arduino/libraries/emilyGPS/emilyGPS.cpp ../arduino/libraries/emilyStatus/emilyStatus.cpp)
 
 add_executable(convertTime ../testFunctions/convertTime_test.cpp ../arduino/libraries/emilyGPS/emilyGPS.cpp ../arduino/libraries/emilyStatus/emilyStatus.cpp)
+
+add_executable(testVenusCommands ../testFunctions/testVenusCommands.cpp ../arduino/libraries/emilyGPS/emilyGPS.cpp ../arduino/libraries/emilyStatus/emilyStatus.cpp)

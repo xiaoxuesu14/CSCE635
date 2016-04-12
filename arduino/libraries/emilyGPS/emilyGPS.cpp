@@ -77,6 +77,43 @@ void emilyGPS::misc_tasks(){
   return;
 }
 
+uint8_t emilyGPS::compute_checksum(char*buffer,uint8_t len){
+  uint8_t cs = 0;
+  for (int j = 0;j<len;j++){
+    cs = cs ^ buffer[j];
+  }
+  return cs;
+}
+
+uint8_t emilyGPS::send_command_configure_serial_port(char*buffer,uint8_t baud){
+  //header bytes
+  buffer[0] = 0xA0;buffer[1] = 0xA1;
+  buffer[2] = 0x00;// payload length byte 1 (MSB)
+  buffer[3] = 0x04;// payload length byte 2 (LSB)
+  buffer[4] = 0x05;// message ID
+  buffer[5] = 0x00;// COMM PORT ID: 0 is Com1
+  buffer[6] = baud;
+  buffer[7] = 0;// 0 = update to SRAM, 1 = update to SRAM and FLASH
+  buffer[8] = compute_checksum(&buffer[4],4);//checksum
+  // end of message bytes
+  buffer[9] = 0x0D; buffer[10] = 0x0A;
+  return 11;
+}
+
+uint8_t emilyGPS::send_command_configure_position_rate(char*buffer,uint8_t rate){
+  //header bytes
+  buffer[0] = 0xA0;buffer[1] = 0xA1;
+  buffer[2] = 0x00;// payload length byte 1 (MSB)
+  buffer[3] = 0x03;// payload length byte 2 (LSB)
+  buffer[4] = 0x0E;// message ID
+  buffer[5] = rate;// rate in Hz
+  buffer[6] = 0;// 0 = update to SRAM, 1 = update to SRAM and FLASH
+  buffer[7] = compute_checksum(&buffer[4],3);//checksum
+  // end of message bytes
+  buffer[8] = 0x0D; buffer[9] = 0x0A;
+  return 10;
+}
+
 int32_t convertGPS(char* buffer){
   double deg = (atof(buffer)*0.01);
   double rem = deg - (int32_t(deg));
