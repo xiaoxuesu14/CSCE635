@@ -77,7 +77,7 @@ void emilyGPS::misc_tasks(){
   return;
 }
 
-uint8_t emilyGPS::compute_checksum(char*buffer,uint8_t len){
+uint8_t emilyGPS::compute_checksum(uint8_t*buffer,uint8_t len){
   uint8_t cs = 0;
   for (int j = 0;j<len;j++){
     cs = cs ^ buffer[j];
@@ -85,7 +85,7 @@ uint8_t emilyGPS::compute_checksum(char*buffer,uint8_t len){
   return cs;
 }
 
-uint8_t emilyGPS::send_command_configure_serial_port(char*buffer,uint8_t baud){
+uint8_t emilyGPS::send_command_configure_serial_port(uint8_t*buffer,uint8_t baud){
   //header bytes
   buffer[0] = 0xA0;buffer[1] = 0xA1;
   buffer[2] = 0x00;// payload length byte 1 (MSB)
@@ -100,7 +100,7 @@ uint8_t emilyGPS::send_command_configure_serial_port(char*buffer,uint8_t baud){
   return 11;
 }
 
-uint8_t emilyGPS::send_command_configure_position_rate(char*buffer,uint8_t rate){
+uint8_t emilyGPS::send_command_configure_position_rate(uint8_t*buffer,uint8_t rate){
   //header bytes
   buffer[0] = 0xA0;buffer[1] = 0xA1;
   buffer[2] = 0x00;// payload length byte 1 (MSB)
@@ -112,6 +112,34 @@ uint8_t emilyGPS::send_command_configure_position_rate(char*buffer,uint8_t rate)
   // end of message bytes
   buffer[8] = 0x0D; buffer[9] = 0x0A;
   return 10;
+}
+
+uint8_t emilyGPS::send_command_restart_cold(uint8_t*buffer){
+  //header bytes
+  buffer[0] = 0xA0;buffer[1] = 0xA1;
+  buffer[2] = 0x00;// payload length byte 1 (MSB)
+  buffer[3] = 0x0F;// payload length byte 2 (LSB)
+  //message body
+  buffer[4] = 0x01;// message ID
+  buffer[5] = 3;// COLD restart
+  buffer[6] = 0x07;//year HIGH byte
+  buffer[7] = 0xD8;//year LOW byte
+  buffer[8] = 0x0B;//month UTC
+  buffer[9] = 0x0E;//day UTC
+  buffer[10] = 0x08;//hour UTC
+  buffer[11] = 0x2E;//min UTC
+  buffer[12] = 0x03;//sec UTC
+  buffer[13] = 0x09;//latitutde high byte
+  buffer[14] = 0xC4;//latitude low byte
+  buffer[15] = 0x30;//longitude high byte
+  buffer[16] = 0x70;//longitude low byte
+  buffer[17] = 0x00;//altitude high byte
+  buffer[18] = 0x64;//altitude low byte
+
+  buffer[19] = compute_checksum(&buffer[4],15);//checksum
+  // end of message bytes
+  buffer[20] = 0x0D; buffer[21] = 0x0A;
+  return 22;
 }
 
 int32_t convertGPS(char* buffer){

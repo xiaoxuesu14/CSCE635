@@ -21,5 +21,12 @@ int main(){
     printf("%02x,",uint8_t(buffer[k]));
   }
   printf("\n");
+
+  len = GPS.send_command_restart_cold(buffer);
+  printf("Restart message: should be\nA0 A1 00 0F 01 03 07 D8 0B 0E 08 2E 03 09 C4 30 70 00 64 ?? 0D 0A  \n");
+  for(int k = 0;k<len;k++){
+    printf("%02x,",uint8_t(buffer[k]));
+  }
+  printf("\n");
   return 0;
 }
