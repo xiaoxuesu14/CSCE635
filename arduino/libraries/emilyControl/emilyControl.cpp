@@ -14,21 +14,21 @@ emilyControl::emilyControl(emilyStatus*st){
 }
 
 void emilyControl::misc_tasks(uint32_t millis){
-  if (status->control_mode == CONTROL_MODE_PASSIVE){
+  if (status->control_mode == CONTROL_MODE_PASSIVE){ // do nothing
     // write out zeros
     throttle = 0.0;
     rudder = 0.0;
     // FLAG that there is new data in the control object
     new_value = 1;
   }
-  if (status->control_mode == CONTROL_MODE_DIRECT){
+  if (status->control_mode == CONTROL_MODE_DIRECT){ //offboard control
     // read from status object
     throttle = status->control_throttle;
     rudder = status->control_rudder;
     // FLAG that there is new data in the control object
     new_value = 1;
   }
-  if (status->control_mode == CONTROL_MODE_INDIRECT){
+  if (status->control_mode == CONTROL_MODE_INDIRECT){ // automatic control
     // check the time
     if (millis - millis_last > EMILYCONTROL_RATE_MILLIS){
       millis_last = millis;
