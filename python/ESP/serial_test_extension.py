@@ -1,4 +1,5 @@
 ''' Test serial communication using the C extension '''
+sys.path.append("build/lib.linux-i686-2.7")
 
 import eps
 import time
