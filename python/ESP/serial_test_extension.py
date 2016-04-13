@@ -1,6 +1,4 @@
 ''' Test serial communication using the C extension '''
-import sys
-sys.path.append('../ESP')
 
 import eps
 import time
