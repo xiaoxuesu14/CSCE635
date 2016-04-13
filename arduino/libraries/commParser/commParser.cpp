@@ -57,6 +57,15 @@ void commParser::handleMsg(){
     case MSG_COMMAND:
       break;
     case MSG_SET_PID:
+    //uint8_t*msg,uint8_t* ch,float* KP, float* KI, float* KD
+    uint8_t ch;
+    float Kp, Kd, Ki;
+    if (esp_unpack_set_pid(msg,&ch,&Kp,&Ki,&Kd) > 0){
+      // set the gains in the status variable
+      status->Kp[ch] = Kp;
+      status->Ki[ch] = Ki;
+      status->Kd[ch] = Kd;
+    }
       break;
   }
 }

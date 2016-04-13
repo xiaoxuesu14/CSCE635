@@ -76,7 +76,7 @@ void loop() {
   // call periodic functions
   comm.misc_tasks(millis_now);
   GPS.misc_tasks();
-  control.misc_tasks();
+  control.misc_tasks(millis_now);
 
   // read the control values and write them
   if(control.new_control() > 0){

@@ -4,9 +4,13 @@
 #include <stdint.h>
 #include "emilyStatus.h"
 
+/** Target automatic control rate execution in Hz */
+#define EMILYCONTROL_RATE_MILLIS 100
+
 /** Scale a floating point 'val between 'low' and 'high' to the PWM output range of [0,255] */
 uint8_t scale_pwm(float val,float low, float high);
 
+/*! Control class. Handles the mode logic and either passses through control values in DIRECT mode, sets zeros in PASSIVE mode, or computes onboard in INDIRECT mode */
 class emilyControl{
 public:
   /** Constructor
@@ -17,8 +21,9 @@ public:
   /** Compute periodic tasks
    *
    * Write out control value, or compute new value & write if fly-by-wire.
+   * @param[in] millis the current system time in milliseconds
    */
-  void misc_tasks();
+  void misc_tasks(uint32_t millis);
   /** Return the PWM values to apply for the rudder and throttle.
    *
    * @param[out] pwm_rudder rudder PWM expressed in [0,255].
@@ -31,6 +36,7 @@ private:
   float rudder;
   float throttle;
   uint8_t new_value;
+  uint32_t millis_last;/*<! Mark the time of last computation for automatic control (INDIRECT mode) */
 };
 
 #endif

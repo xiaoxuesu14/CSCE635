@@ -19,13 +19,6 @@ gpsData::gpsData(){
 
 void gpsData::set(double lati,double loni,double ti){
   set( int32_t(lati*1e7),int32_t(loni*1e7), ti);
-  /*
-  lat = lati;
-  lon = loni;
-  t = ti;
-  x = deg2m(lat-lat_home);
-  y = deg2m(lon-lon_home);
-  */
 }
 
 void gpsData::set(int32_t lati,int32_t loni,double ti){
@@ -56,4 +49,11 @@ void gpsData::get(float*xi,float*yi){
 emilyStatus::emilyStatus(){
   // initialize in passive control mode
   control_mode = CONTROL_MODE_PASSIVE;
+  // initialize control gains to zero!
+  for(int j=0;j<2;j++)
+  {
+    Kp[j] = 0.0;
+    Ki[j] = 0.0;
+    Kd[j] = 0.0;
+  }
 }

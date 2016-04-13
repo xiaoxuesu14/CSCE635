@@ -75,8 +75,12 @@ public:
   double control_throttle;
   double command_heading;
   double command_speed;
+  double Kp[2];/*!< proportional gains for the rudder (channel 0) and throttle (channel 1) */
+  double Ki[2];/*!< integral gains for the rudder (channel 0) and throttle (channel 1) */
+  double Kd[2];/*!< derivative gains for the rudder (channel 0) and throttle (channel 1) */
   uint8_t control_mode;
   commStatus comm_status;
+private:
 };
 
 #endif
