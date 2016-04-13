@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include "emilyStatus.h"
+#include "controlPid.h"
 
 /** Target automatic control rate execution in Hz */
 #define EMILYCONTROL_RATE_MILLIS 100
@@ -37,6 +38,8 @@ private:
   float throttle;
   uint8_t new_value;
   uint32_t millis_last;/*<! Mark the time of last computation for automatic control (INDIRECT mode) */
+  controlPid rudder_pid;
+  controlPid throttle_pid;
 };
 
 #endif

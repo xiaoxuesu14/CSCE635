@@ -11,6 +11,15 @@ emilyControl::emilyControl(emilyStatus*st){
   throttle = 0.0;
   new_value = 0;
   millis_last = 0;
+  // initialize the PID gain
+  rudder_pid.set_Kp(0.0);
+  rudder_pid.set_Ki(0.0);
+  rudder_pid.set_Kd(0.0);
+  rudder_pid.set_integral_max(0.1);
+  throttle_pid.set_Kp(0.0);
+  throttle_pid.set_Ki(0.0);
+  throttle_pid.set_Kd(0.0);
+  throttle_pid.set_integral_max(0.1);
 }
 
 void emilyControl::misc_tasks(uint32_t millis){
@@ -29,6 +38,7 @@ void emilyControl::misc_tasks(uint32_t millis){
     new_value = 1;
   }
   if (status->control_mode == CONTROL_MODE_INDIRECT){ // automatic control
+    // set the gains if new values
     // check the time
     if (millis - millis_last > EMILYCONTROL_RATE_MILLIS){
       millis_last = millis;

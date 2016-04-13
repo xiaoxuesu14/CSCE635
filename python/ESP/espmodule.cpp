@@ -1,3 +1,5 @@
+/* Decent reference for python extensions: http://www.tutorialspoint.com/python/python_further_extensions.htm */
+
 #include <Python.h>
 #include <stdint.h>
 #include <stdio.h>
